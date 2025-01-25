@@ -4,7 +4,7 @@ This code just take a sum of 2D array.
  s = \sum_{i,j} S_{i,j}
 ```
 # Download
-Download this at the login node of CfCA server.
+Download this at the login node of CfCA server. You can specify any directory instead of `test`.
 
 	ssh <username>@xd01.cfca.nao.ac.jp
 	cd /work/<username>
