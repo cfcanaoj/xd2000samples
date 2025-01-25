@@ -2,7 +2,7 @@
 module basicmod
   implicit none
   integer::nhy
-  integer,parameter::nhymax=1
+  integer,parameter::nhymax=2000
   integer,parameter::ngridx=90
   integer,parameter::ngridy=180
   integer,parameter::ngridz=1
@@ -40,9 +40,10 @@ program main
   logical,parameter::debug=.false.
   
   call InitializeMPI
+  if(myid_w == 0) print *, "grid size for x y",ngridx*ntiles(1),ngridy*ntiles(2)
+
   threadsnum = omp_get_max_threads()
   if(myid_w == 0) print *, "threads=",threadsnum
-  if(myid_w == 0) print *, "grid size for x y",ngridx*ntiles(1),ngridy*ntiles(2)
 
   call InitialzeVariables
   
@@ -99,11 +100,11 @@ subroutine SumVariables
   enddo
   enddo
 !$omp end do
-  print *,"p1",myid,sum
+!  print *,"p1",myid,sum
 !$omp end parallel
   sumsend = sum
 
-  print *,"p2",myid,sumsend
+!  print *,"p2",myid,sumsend
   
   call MPI_ALLREDUCE( sumsend, sumrecv, 1  &
   &                 , MPI_DOUBLE_PRECISION &
@@ -111,5 +112,5 @@ subroutine SumVariables
 
   sumall = sumrecv
   
-  if(myid==0) print *,"p3",sumall
+!  if(myid==0) print *,"p3",sumall
 end subroutine SumVariables
