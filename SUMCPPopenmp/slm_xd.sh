@@ -14,7 +14,6 @@ cd ${SLURM_SUBMIT_DIR}
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
 date >& log.$SLURM_JOB_ID
-time srun ./sum.x >> log.$SLURM_JOB_ID
-
+time srun  ./sum.x >> log.$SLURM_JOB_ID
 date >> log.$SLURM_JOB_ID
 

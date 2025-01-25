@@ -87,7 +87,7 @@ int main(){
   
   InitializeVariables();
 
-  cout<< "entering main loop" << endl;
+  if(myid_w == 0) cout<< "entering main loop" << endl;
   time_begin = omp_get_wtime();
   for (int nhy=0;nhy<nhymax;nhy++){
     SumVariables();

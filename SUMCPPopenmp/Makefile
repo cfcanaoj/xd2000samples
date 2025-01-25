@@ -11,7 +11,7 @@ all: ${exe}
 
 cc= mpiicpx
 coptopenmp = -fiopenmp
-copt = -O2
+copt = -O2 -xsapphirerapids
 
 # setup for CfCA XD2000 end
 ##################################
