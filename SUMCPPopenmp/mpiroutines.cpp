@@ -33,11 +33,13 @@ int InitializeMPI(){
   int argc;
   char** argv;
 
+  //cout <<  "start" << endl;// debug
+  argc = 0;
   // Initialize MPI
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs_w);
   MPI_Comm_rank(MPI_COMM_WORLD, &myid_w  );
-  // call setMPI
+  setMPI();
   periodic[dimx]= 1;//true
   periodic[dimy]= 1;//true
   periodic[dimz]= 1;//true
