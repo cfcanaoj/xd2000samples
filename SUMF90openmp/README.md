@@ -4,14 +4,18 @@ This code just take a sum of 2D array.
  s = \sum_{i,j} S_{i,j}
 ```
 # Download
-Download this at the login node of CfCA server.
+Download this at the login node of CfCA server. You can specify any directory instead of `test`.
 
 	ssh <username>@xd01.cfca.nao.ac.jp
 	cd /work/<username>
 	git clone git@github.com:cfcanaoj/xd2000samples test
-	cd test/SUMF90openmp
+	
 
-
+# Change directory
+You can change the directory by `cd`. `test` can be different if you change the name above.
+    
+    cd test/SUMF90openmp
+    
 # Compile code
 First you need to prepare Intel one-api environment. This setup is also need to run the program. You should write it in `.basrhrc`.
     
