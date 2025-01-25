@@ -28,7 +28,7 @@ namespace basicmod{
 
 }
 
-int setmpi(){
+int setMPI(){
   using namespace mpimod;
   ntiles[dimx] = 4;
   ntiles[dimy] = 2;
@@ -76,13 +76,14 @@ int SumVariables(){
 int main(){
   using namespace std;
   using namespace basicmod;
+  using namespace mpimod;
   double time_begin, time_end;
   int threadsnum;
   InitializeMPI();
-  cout<< "grid size for x y "<< ngridx << " " << ngridy << endl;
+  if(myid_w == 0) cout<< "grid size for x y "<< ngridx * ntiles[dimx] << " " << ngridy * ntiles[dimy] << endl;
 
   threadsnum = omp_get_max_threads();
-  cout<< "threads="<<threadsnum<< endl;
+  if(myid_w == 0) cout<< "threads="<<threadsnum<< endl;
   
   InitializeVariables();
 
@@ -93,11 +94,12 @@ int main(){
   }
   time_end = omp_get_wtime();
 
-  cout<< "sum=" << sumall << endl;
-  cout<< "sim time [s] = " << time_end-time_begin << endl;
-  cout<< "time/count/cell = " << (time_end-time_begin)/(ngridx*ngridy)/nhymax << endl;
-
+  if(myid_w == 0) {
+    cout<< "sum=" << sumall << endl;
+    cout<< "sim time [s] = " << time_end-time_begin << endl;
+    cout<< "time/count/cell = " << (time_end-time_begin)/(ngridx*ngridy)/nhymax << endl;
+  }
   
-  cout<< "program has been finished"<<endl;
+  if(myid_w == 0) cout<< "program has been finished"<<endl;
   return 1;
 }

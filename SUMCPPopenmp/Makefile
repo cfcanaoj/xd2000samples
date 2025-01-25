@@ -23,8 +23,9 @@ copt = -O2
 
 OBJS=main.o mpiroutines.o
 
-mpiroutines.o:
-main.o: main.cpp mpiroutines.o 
+mpiroutines.o: mpiroutines.cpp mpiroutines.hpp
+
+main.o: main.cpp mpiroutines.o
 
 ${exe}: ${OBJS}
 	${cc} ${copt} ${coptopenmp} ${OBJS} -o ${exe}

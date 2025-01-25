@@ -27,6 +27,7 @@ namespace mpimod{
 }
 
 int InitializeMPI();
+int setMPI();
 
 
 #endif //MPIROUNTINES
