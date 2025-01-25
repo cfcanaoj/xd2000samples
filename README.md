@@ -6,7 +6,7 @@ Download this at the login node of CfCA server.
 	git clone git@github.com:cfcanaoj/xd2000samples test
 	cd test
 
-- [Samples using MPI and openMP in C++](./c/README.md)
+- [Samples using MPI and openMP in C++](./SUMCPPopenmp/README.md)
 - [Samples using MPI and openMP in Fortran ](./cpp/README.md)
 
 
