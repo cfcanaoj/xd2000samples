@@ -31,9 +31,9 @@ In the following part, you need to specify your own partition.
 
 Then you can submit the job.
 
-   sbatch slm_xc.sh
-   
+    sbatch slm_xc.sh
+    
 You can confirm the job by the following command.
-
-   squeue --me
+    
+    squeue --me
    
