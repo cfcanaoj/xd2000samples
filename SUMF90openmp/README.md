@@ -9,7 +9,8 @@ Download this at the login node of CfCA server.
 	ssh <username>@xd01.cfca.nao.ac.jp
 	cd /work/<username>
 	git clone git@github.com:cfcanaoj/xd2000samples test
-	cd test
+	cd test/SUMF90openmp
+
 
 # Compile code
 First you need to prepare Intel one-api environment. This setup is also need to run the program. You should write it in `.basrhrc`.
