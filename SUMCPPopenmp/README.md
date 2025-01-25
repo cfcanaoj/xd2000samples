@@ -9,8 +9,12 @@ Download this at the login node of CfCA server.
 	ssh <username>@xd01.cfca.nao.ac.jp
 	cd /work/<username>
 	git clone git@github.com:cfcanaoj/xd2000samples test
-	cd test/SUMCPPopenmp
 
+# Change directory
+You can change the directory by `cd`. `test` can be different if you change the name above.
+    
+    cd test/SUMCPPopenmp
+    
 # Compile code
 First you need to prepare Intel one-api environment. This setup is also need to run the program. You should write it in `.basrhrc`.
     
