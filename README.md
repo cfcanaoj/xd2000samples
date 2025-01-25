@@ -7,7 +7,7 @@ Download this at the login node of CfCA server.
 	cd test
 
 - [Samples using MPI and openMP in C++](./SUMCPPopenmp/README.md)
-- [Samples using MPI and openMP in Fortran ](./cpp/README.md)
+- [Samples using MPI and openMP in Fortran ](./SUMF90openmp/README.md)
 
 
 # Refererences
