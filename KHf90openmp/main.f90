@@ -2,19 +2,20 @@
 module basicmod
   implicit none
   integer::nhy
-  integer,parameter::nhymax=200
+  integer,parameter::nhymax=2000
   real(8)::time,dt
   data time / 0.0d0 /
-  integer,parameter::ngrid=120
+  integer,parameter::ngridx=90
+  integer,parameter::ngridy=180
   integer,parameter::mgn=2
-  integer,parameter::in=ngrid+2*mgn+1 &
- &                  ,jn=ngrid+2*mgn+1 &
+  integer,parameter::in=ngridx+2*mgn+1 &
+ &                  ,jn=ngridy+2*mgn+1 &
  &                  ,kn=1
   integer,parameter::is=mgn+1 &
  &                  ,js=mgn+1 &
  &                  ,ks=1
-  integer,parameter::ie=ngrid+mgn &
- &                  ,je=ngrid+mgn &
+  integer,parameter::ie=ngridx+mgn &
+ &                  ,je=ngridy+mgn &
  &                  ,ke=1
 
   real(8),parameter:: x1min=-0.5d0,x1max=0.5d0
@@ -30,7 +31,15 @@ module basicmod
   
   integer,parameter::nbc=5
 end module basicmod
-      
+
+subroutine setmpi
+  use mpimod, only: ntiles
+  implicit none
+  ntiles(1) = 4
+  ntiles(2) = 2
+  ntiles(3) = 1
+end subroutine setmpi
+
 module fluxmod
   use basicmod, only : in,jn,kn
   implicit none
@@ -62,7 +71,7 @@ program main
   threadsnum = omp_get_max_threads()
   if(myid_w == 0) print *, "threads=",threadsnum
   if(myid_w == 0) print *, "setup grids and fields"
-  if(myid_w == 0) print *, "grid size for x y",ngrid*ntiles(1),ngrid*ntiles(2)
+  if(myid_w == 0) print *, "grid size for x y",ngridx*ntiles(1),ngridy*ntiles(2)
   call GenerateGrid
   call GenerateProblem
   call ConsvVariable
@@ -91,7 +100,7 @@ program main
   time_end = omp_get_wtime()
   
   if(myid_w == 0) print *, "sim time [s]:", time_end-time_begin
-  if(myid_w == 0) print *, "time/count/cell", (time_end-time_begin)/(ngrid**2)/nhymax
+  if(myid_w == 0) print *, "time/count/cell", (time_end-time_begin)/(ngridx*ngridy)/nhymax
   
   call FinalizeMPI
   if(myid_w == 0) print *, "program has been finished"
@@ -111,7 +120,7 @@ subroutine GenerateGrid
 
 !  print *, myid,x1minloc,x1maxloc
 
-  dx=(x1maxloc-x1minloc)/ngrid
+  dx=(x1maxloc-x1minloc)/ngridx
   do i=1,in
      x1a(i) = dx*(i-(mgn+1))+x1minloc
   enddo
@@ -125,7 +134,7 @@ subroutine GenerateGrid
 
 !  print *, myid,x2minloc,x2maxloc
 
-  dy=(x2maxloc-x2minloc)/ngrid
+  dy=(x2maxloc-x2minloc)/ngridy
   do j=1,jn
      x2a(j) = dy*(j-(mgn+1))+x2minloc
   enddo
@@ -150,12 +159,13 @@ end subroutine GenerateGrid
       real(8)::pi
       pi=acos(-1.0d0)
 
-      d(:,:,:) = 1.0d0
-
+!$omp parallel private(i,j,k)
+!$omp do collapse(2)
       do k=ks,ke
       do j=js,je
+            
       do i=is,ie
-
+         d(i,j,k) = 1.0d0
          if      ( x2b(j) .gt. 0.25d0 )then
             v1(i,j,k) =    u1 - (  u1-  u2)/2.0d0*exp(-( x2b(j)-0.25d0)/Lsm)
              d(i,j,k) =  rho1 - (rho1-rho2)/2.0d0*exp(-( x2b(j)-0.25d0)/Lsm)
@@ -174,18 +184,15 @@ end subroutine GenerateGrid
          v2(i,j,k) = 0.01d0*sin(4.0d0*pi*x1b(i))
          v3(i,j,k) = 0.0d0
       enddo
-      enddo
-      enddo
-
-
-      do k=ks,ke
-      do j=js,je
+      
       do i=is,ie
           ei(i,j,k) = p(i,j,k)/(gam-1.0d0)
           cs(i,j,k) = sqrt(gam*p(i,j,k)/d(i,j,k))
       enddo
       enddo
       enddo
+!$omp end do
+!$omp end parallel
       
       call BoundaryCondition
 
@@ -373,7 +380,8 @@ subroutine ConsvVariable
   use basicmod
   implicit none
   integer::i,j,k
-!$omp parallel do collapse(3)
+!$omp parallel private(i,j,k)
+!$omp do collapse(2)
   do k=ks,ke
   do j=js,je
   do i=is,ie
@@ -389,7 +397,8 @@ subroutine ConsvVariable
   enddo
   enddo
   enddo
-!$omp end parallel do
+!$omp end do
+!$omp end parallel
       return
       end subroutine Consvvariable
 
@@ -398,7 +407,8 @@ subroutine ConsvVariable
       implicit none
       integer::i,j,k
       
-!$omp parallel do collapse(3)
+!$omp parallel private(i,j,k)
+!$omp do collapse(2)
       do k=ks,ke
       do j=js,je
       do i=is,ie
@@ -417,7 +427,8 @@ subroutine ConsvVariable
       enddo
       enddo
       enddo
-!$end omp parallel do
+!$end omp do
+!$omp end parallel
       return
       end subroutine PrimVariable
 
@@ -433,7 +444,8 @@ subroutine TimestepControl
   integer::i,j,k
   dtmin=1.0d90
 
-!$omp parallel do collapse(3) reduction(min:dtmin) private(dtl1,dtl2,dtl3,dtlocal)      
+!$omp parallel reduction(min:dtmin) private(i,j,k,dtl1,dtl2,dtl3,dtlocal)
+!$omp do collapse(2)
   do k=ks,ke
   do j=js,je
   do i=is,ie
@@ -445,7 +457,8 @@ subroutine TimestepControl
   enddo
   enddo
   enddo
-!$omp end parallel do
+!$omp end do
+!$omp end parallel
 
   dtlocal = dtmin
   call MPI_ALLREDUCE( dtlocal, dtmin, 1    &
@@ -462,7 +475,8 @@ end subroutine TimestepControl
       use fluxmod
       implicit none
       integer::i,j,k
-!$omp parallel do collapse(3)
+!$omp parallel private(i,j,k)
+!$omp do collapse(3)
       do k=ks,ke
       do j=1,jn-1
       do i=1,in-1
@@ -475,8 +489,8 @@ end subroutine TimestepControl
       enddo
       enddo
       enddo
-!$omp end parallel do
-      
+!$omp end do
+!$omp end parallel 
       return
       end subroutine StateVector
 
@@ -542,7 +556,8 @@ end subroutine TimestepControl
       real(8),dimension(2*mflx+madd):: leftst,rigtst
       real(8),dimension(mflx):: nflux
 
-!$omp parallel do collapse(2) private(dsv,dsvp,dsvm) private(leftst,rigtst,nflux)  
+!$omp parallel private(dsv,dsvp,dsvm) private(leftst,rigtst,nflux) private(i,j,k) 
+!$omp do collapse(2)
       kloop: do k=ks,ke
       jloop: do j=js,je
             
@@ -631,7 +646,8 @@ end subroutine TimestepControl
       
       enddo jloop
       enddo kloop
-!$omp end parallel do
+!$omp end do
+!$omp end parallel
       
       return
       end subroutine Numericalflux1
@@ -647,7 +663,8 @@ end subroutine TimestepControl
       real(8),dimension(2*mflx+madd):: leftst,rigtst
       real(8),dimension(mflx):: nflux
 
-!$omp parallel do collapse(2) private(dsv,dsvp,dsvm) private(leftst,rigtst,nflux)
+!$omp parallel private(dsv,dsvp,dsvm) private(leftst,rigtst,nflux) private(i,j,k)
+!$omp do collapse(2)
       kloop: do k=ks,ke
       iloop: do i=is,ie
             
@@ -736,7 +753,8 @@ end subroutine TimestepControl
 
       enddo iloop
       enddo kloop
-!$omp end parallel do
+!$omp end do
+!$omp end parallel
 
       return
       end subroutine Numericalflux2
@@ -776,7 +794,8 @@ end subroutine TimestepControl
       implicit none
       integer::i,j,k
 
-!$omp parallel do collapse(3)
+!$omp parallel private(i,j,k)
+!$omp do collapse(3)
       do k=ks,ke
       do j=js,je
       do i=is,ie
@@ -823,7 +842,8 @@ end subroutine TimestepControl
       enddo
       enddo
       enddo
-!$end omp parallel do
+!$omp end do
+!$omp end parallel
 
       return
       end subroutine UpdateConsv
@@ -855,7 +875,7 @@ end subroutine TimestepControl
       open(unitout,file=filename,status='replace',form='formatted') 
 
       write(unitout,*) "# ",time
-      write(unitout,*) "# ",ngrid,ngrid
+      write(unitout,*) "# ",ngridx,ngridy
       k=ks
       do j=js,je
       do i=is,ie

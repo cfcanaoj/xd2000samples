@@ -8,12 +8,14 @@ module mpimod
   integer :: ierr,myid_w, nprocs_w
   integer :: mpi_comm_hyd,myid_hyd, nprocs_hyd
   integer :: comm3d,myid, nprocs
-  logical :: periodic(3)
-  integer :: ntiles(3), coords(3)
+  logical :: periodic(3)  =  (/ .true.,.true.,.true. /)
+  integer :: ntiles(3)    =  (/      1,     1,    1  /)
+  integer :: coords(3)
   logical :: reorder
   integer :: n1m, n1p, n2m, n2p, n3m, n3p
   integer :: nreq, nsub
 
+ 
 contains
 subroutine InitializeMPI
   implicit none
@@ -24,10 +26,7 @@ subroutine InitializeMPI
   call MPI_INIT( ierr )
   call MPI_COMM_SIZE( MPI_COMM_WORLD, nprocs_w, ierr )
   call MPI_COMM_RANK( MPI_COMM_WORLD, myid_w  , ierr )
-  
-  ntiles(1)=3
-  ntiles(2)=4
-  ntiles(3)=1
+  call setMPI
   periodic(1)=.true.
   periodic(2)=.true.
   periodic(3)=.true.
