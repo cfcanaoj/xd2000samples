@@ -6,9 +6,9 @@ Download this at the login node of CfCA server.
 	git clone git@github.com:cfcanaoj/xd2000samples test
 	cd test
 
-- [Samples using MPI and openMP in C++](./SUMCPPopenmp/)
-- [Samples using MPI and openMP in Fortran ](./SUMF90openmp/)
-
+- [Sample of reduction using MPI and openMP in C++](./SUMCPPopenmp/)
+- [Sample of reduction using MPI and openMP in Fortran ](./SUMF90openmp/)
+- [Sample of addition of 2D array using MPI and openMP/Concurrent in Fortran ](./PARAF90/)
 
 # Refererences
 - [CfCA XD2000](https://www.cfca.nao.ac.jp/xd2000)
