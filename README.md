@@ -6,8 +6,8 @@ Download this at the login node of CfCA server.
 	git clone git@github.com:cfcanaoj/xd2000samples test
 	cd test
 
-- [Sample of reduction using MPI and openMP in C++](./SUMCPPopenmp/)
-- [Sample of reduction using MPI and openMP in Fortran ](./SUMF90openmp/)
+- [Sample of reduction of 2D array using MPI and openMP in C++](./SUMCPPopenmp/)
+- [Sample of reduction of 2D array using MPI and openMP/Concurrent in Fortran ](./SUMF90openmp/)
 - [Sample of addition of 2D array using MPI and openMP/Concurrent in Fortran ](./PARAF90/)
 
 # Refererences
