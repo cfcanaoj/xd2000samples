@@ -11,7 +11,7 @@ all: ${exe}
 
 fc= mpiifx -fc=ifort -diag-disable=10448
 foptopenmp = -qopenmp
-fopt = -g -traceback -O2
+fopt = -g -traceback -O2 #-qopt-report=2
 
 # setup for CfCA XD2000 end
 ##################################

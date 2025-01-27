@@ -2,9 +2,9 @@
 module basicmod
   implicit none
   integer::nhy
-  integer,parameter::nhymax=2000
-  integer,parameter::ngridx=90
-  integer,parameter::ngridy=180
+  integer,parameter::nhymax=1000
+  integer,parameter::ngridx=45
+  integer,parameter::ngridy=360
   integer,parameter::ngridz=1
   integer,parameter::in=ngridx &
  &                  ,jn=ngridy &
@@ -24,8 +24,8 @@ end module basicmod
 subroutine setmpi
   use mpimod, only: ntiles
   implicit none
-  ntiles(1) = 4
-  ntiles(2) = 2
+  ntiles(1) = 8
+  ntiles(2) = 1
   ntiles(3) = 1
 end subroutine setmpi
 
@@ -40,25 +40,32 @@ program main
   logical,parameter::debug=.false.
   
   call InitializeMPI
-  if(myid_w == 0) print *, "grid size for x y",ngridx*ntiles(1),ngridy*ntiles(2)
-
   threadsnum = omp_get_max_threads()
   if(myid_w == 0) print *, "threads=",threadsnum
+  if(myid_w == 0) print *, "grid size for x y",ngridx*ntiles(1),ngridy*ntiles(2)
 
   call InitialzeVariables
   
   if(myid_w == 0) print *, "entering main loop"
-! main loop
+! main loop1
   time_begin = omp_get_wtime()
   do nhy=1,nhymax
-     call SumVariables
+     call SumVariablesOpenmp
   enddo
-  
   if(myid_w == 0) print *, "sum",sumall
   time_end = omp_get_wtime()
-  
   if(myid_w == 0) print *, "sim time [s]:", time_end-time_begin
   if(myid_w == 0) print *, "time/count/cell", (time_end-time_begin)/(ngridx*ngridy)/nhymax
+! main loop2
+  time_begin = omp_get_wtime()
+  do nhy=1,nhymax
+     call SumVariablesConcurrent
+  enddo
+  if(myid_w == 0) print *, "sum",sumall
+  time_end = omp_get_wtime()
+  if(myid_w == 0) print *, "sim time [s]:", time_end-time_begin
+  if(myid_w == 0) print *, "time/count/cell", (time_end-time_begin)/(ngridx*ngridy)/nhymax
+
   
   call FinalizeMPI
   if(myid_w == 0) print *, "program has been finished"
@@ -69,18 +76,23 @@ subroutine InitialzeVariables
   use basicmod
   implicit none
   integer i,j,k
-  do k=ks,ke
+
+!$omp parallel private(i,j,k)
+  k = 1 
+!$omp do 
   do j=js,je
-  do i=is,ie
-!     S(i,j,k) =  myid*in*jn*kn + in*jn*(k-1)+ in*(j-1) + i 
-     S(i,j,k) =  1.0d0
-  enddo
-  enddo
-  enddo
+     do i=is,ie
+        !     S(i,j,k) =  myid*in*jn*kn + in*jn*(k-1)+ in*(j-1) + i 
+        S(i,j,k) =  1.0d0
+     enddo
+enddo
+!$omp end do
+!$omp end parallel
+
 end subroutine InitialzeVariables
 
 
-subroutine SumVariables
+subroutine SumVariablesOpenmp
   use mpimod
   use basicmod
   use omp_lib
@@ -89,28 +101,46 @@ subroutine SumVariables
   real(8)::sum
   real(8)::sumsend, sumrecv
   
-  sum = 0.0d0  
-!$omp parallel reduction(+:sum)
-!$omp do collapse(3)
-  do k=ks,ke
+  sum = 0.0d0
+!$omp parallel private(i,j,k) reduction(+:sum)
+  k=1
+!$omp do 
   do j=js,je
-  do i=is,ie
-     sum = sum + S(i,j,k) 
-  enddo
-  enddo
+     do i=is,ie
+        sum = sum + S(i,j,k) 
+     enddo
   enddo
 !$omp end do
-!  print *,"p1",myid,sum
 !$omp end parallel
   sumsend = sum
 
-!  print *,"p2",myid,sumsend
-  
   call MPI_ALLREDUCE( sumsend, sumrecv, 1  &
   &                 , MPI_DOUBLE_PRECISION &
   &                 , MPI_SUM, comm3d, ierr)
 
   sumall = sumrecv
   
-!  if(myid==0) print *,"p3",sumall
-end subroutine SumVariables
+end subroutine SumVariablesOpenmp
+
+subroutine SumVariablesConcurrent
+  use mpimod
+  use basicmod
+  implicit none
+  integer i,j,k
+  real(8)::sum
+  real(8)::sumsend, sumrecv
+  
+  sum = 0.0d0
+  do concurrent (i=is:ie,j=js:je,k=ks:ke) reduce(+:sum)
+     sum = sum + S(i,j,k) 
+  enddo
+  
+  sumsend = sum
+
+  call MPI_ALLREDUCE( sumsend, sumrecv, 1  &
+  &                 , MPI_DOUBLE_PRECISION &
+  &                 , MPI_SUM, comm3d, ierr)
+
+  sumall = sumrecv
+  
+end subroutine SumVariablesConcurrent
