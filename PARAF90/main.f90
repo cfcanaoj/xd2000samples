@@ -3,8 +3,8 @@ module basicmod
   implicit none
   integer::nhy
   integer,parameter::nhymax=2000
-  integer,parameter::ngridx=45
-  integer,parameter::ngridy=45
+  integer,parameter::ngridx=90
+  integer,parameter::ngridy=180
   integer,parameter::ngridz=1
   integer,parameter::in=ngridx &
  &                  ,jn=ngridy &
@@ -23,8 +23,8 @@ end module basicmod
 subroutine setmpi
   use mpimod, only: ntiles
   implicit none
-  ntiles(1) = 8
-  ntiles(2) = 8
+  ntiles(1) = 4
+  ntiles(2) = 2
   ntiles(3) = 1
 end subroutine setmpi
 
