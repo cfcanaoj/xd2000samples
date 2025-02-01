@@ -5,8 +5,8 @@ module basicmod
   integer,parameter::nhymax=2000
   real(8)::time,dt
   data time / 0.0d0 /
-  integer,parameter::ngridx=90
-  integer,parameter::ngridy=180
+  integer,parameter::ngridx=64
+  integer,parameter::ngridy=512
   integer,parameter::mgn=2
   integer,parameter::in=ngridx+2*mgn+1 &
  &                  ,jn=ngridy+2*mgn+1 &
@@ -35,8 +35,8 @@ end module basicmod
 subroutine setmpi
   use mpimod, only: ntiles
   implicit none
-  ntiles(1) = 4
-  ntiles(2) = 2
+  ntiles(1) = 8
+  ntiles(2) = 1
   ntiles(3) = 1
 end subroutine setmpi
 
