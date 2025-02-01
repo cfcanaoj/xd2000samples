@@ -23,14 +23,14 @@ You can change the directory by `cd`. `test` can be different if you change the 
     cd test/KHF90openmp
 
 ## Compile code
-	First you need to prepare Intel one-api environment. This setup is also need to run the program. You should write it in `.basrhrc`.
-	    
-	    source enable-oneapi.sh
-	    
-	 After that you can compile it. If you want to change the compile option, edit `Makefile`.
-	    
-	    make
-
+First you need to prepare Intel one-api environment. This setup is also need to run the program. You should write it in `.basrhrc`.
+    
+    source enable-oneapi.sh
+    
+After that you can compile it. If you want to change the compile option, edit `Makefile`.
+    
+    make
+    
  ## Run program
  Before the submission, you need to edit the batch script.
     
