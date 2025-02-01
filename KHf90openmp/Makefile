@@ -22,7 +22,7 @@ fopt = -g -traceback -O2
 
 #fc= mpiifx
 #foptopenmp = -fiopenmp
-#fopt = -g -traceback -O2 -qopt-report=2
+#fopt = -g -traceback -O2 # -qopt-report=2
 #foptlink= -Wl,--no-relax
 #fopt=-g -traceback -check all -fpe0
 

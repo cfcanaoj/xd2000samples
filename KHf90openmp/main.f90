@@ -894,10 +894,13 @@ end subroutine TimestepControl
       end subroutine Output
 
       subroutine makedirs(outdir)
+        use mpimod
         implicit none
         character(len=*), intent(in) :: outdir
         character(len=256) command
         write(command, *) 'if [ ! -d ', trim(outdir), ' ]; then mkdir -p ', trim(outdir), '; fi'
-        write(*, *) trim(command)
-        call system(command)
+        if(myid_w ==0) print *, trim(command)
+        if(myid_w ==0) call system(command)
+        call MPI_BARRIER(MPI_COMM_WORLD, ierr )
+       
       end subroutine makedirs
