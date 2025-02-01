@@ -9,7 +9,7 @@ Download this at the login node of CfCA server.
 ## addition
 - [Sample of addition of 2D array using MPI and OpenMP/Concurrent in Fortran ](./PARAF90/)
 - 
-## sum(reduction)
+## sum (reduction)
 - [Sample of reduction of 2D array using MPI and OpenMP in C++](./SUMCPPopenmp/)
 - [Sample of reduction of 2D array using MPI and OpenMP/Concurrent in Fortran ](./SUMF90openmp/)
 
