@@ -1,13 +1,17 @@
 
-exe=kh.x
+exe_mpi=kh_mpi.x
+exe_hybrid=kh_hybrid.x
+exe_openmp=kh_openmp.x
 
-all: ${exe}
+all: mpi
 
-.PHONY: all openmp clean allclean
+.PHONY: all mpi hybrid openmp clean
 
-openmp:
-	${MAKE} clean
-	${MAKE} foptopenmp=-fopenmp all
+mpi: ${exe_mpi}
+
+hybrid: ${exe_hybrid}
+
+openmp: ${exe_openmp}
 
 ##################################
 # setup for CfCA XD2000 cpe env (gnu) begin
@@ -23,8 +27,7 @@ fopt = -O2
 ##################################
 
 #fc= ftn 
-#foptopenmp = -fopenmp
-#fopt = -g -traceback -O2
+#fopt = -O2
 
 # setup for CfCA XD2000 end
 ##################################
@@ -32,21 +35,8 @@ fopt = -O2
 ##################################
 # setup for CfCA XD2000 cpe env (intel) begin
 ##################################
-
 #fc= ftn 
-#foptopenmp = -fopenmp
-#fopt = -g -traceback -O2
-
-# setup for CfCA XD2000 end
-##################################
-
-##################################
-# setup for CfCA XD2000 cpe env (cray) begin
-##################################
-
-#fc= ftn 
-#foptopenmp = -fopenmp
-#fopt = -g -traceback -O2
+#fopt = -O2
 
 # setup for CfCA XD2000 end
 ##################################
@@ -86,21 +76,17 @@ fopt = -O2
 ##################################
 
 
-.SUFFIXES: .f90 .o
+${exe_mpi}: main_mpi.f90 mpiroutines.f90
+	${fc} ${fopt} mpiroutines.f90 main_mpi.f90 -o ${exe_mpi}
 
-.f90.o: 
-	${fc} ${fopt} ${foptopenmp} -c $< 
+${exe_hybrid}: main_mpi.f90 mpiroutines.f90
+	${fc} ${fopt} -fopenmp mpiroutines.f90 main_mpi.f90 -o ${exe_hybrid}
 
-OBJS=main.o mpiroutines.o
-
-mpiroutines.o:
-main.o: main.f90 mpiroutines.o 
-
-${exe}: ${OBJS}
-	${fc} ${fopt} ${foptopenmp} ${OBJS} ${foptlink} -o ${exe}
+${exe_openmp}: main_openmp.f90
+	${fc} ${fopt} -fopenmp main_openmp.f90 -o ${exe_openmp}
 
 #################
 # clean up
 #################
 clean:
-	rm -f ${exe} *.o *.mod *~
+	rm -f ${exe_mpi} ${exe_hybrid} ${exe_openmp} *.o *.mod *~
