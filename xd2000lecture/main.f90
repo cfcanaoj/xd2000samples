@@ -66,7 +66,7 @@ program main
   implicit none
   real(8)::time_begin,time_end
   integer::threadsnum
-  logical,parameter::nooutput=.true.
+  logical,parameter::nooutput=.false.
   logical,parameter::debug=.false.
   call InitializeMPI
   threadsnum = omp_get_max_threads()
@@ -857,7 +857,7 @@ end subroutine TimestepControl
       character(40)::filename
       real(8),save::tout
       data tout / 0.0d0 / 
-      real(8),parameter:: dtout=1.0d-2
+      real(8),parameter:: dtout=5.0d-2
       integer::nout
       data nout / 1 /
       integer,parameter::unitout=13
