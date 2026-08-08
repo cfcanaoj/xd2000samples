@@ -891,8 +891,8 @@ end subroutine TimestepControl
 
       if(myid_w == 0) print *, "output:",nout,time
 
+      tout=nout*dtout
       nout=nout+1
-      tout=time
 
       return
       end subroutine Output
