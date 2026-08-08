@@ -61,15 +61,18 @@ end module fluxmod
 
 program main
   use basicmod
-  use omp_lib
+  use iso_fortran_env, only: int64
+!$ use omp_lib, only: omp_get_max_threads
   use mpimod
   implicit none
-  real(8)::time_begin,time_end
+  real(8)::elapsed
+  integer(int64)::clock_begin,clock_end,clock_rate
   integer::threadsnum
   logical,parameter::nooutput=.false.
   logical,parameter::debug=.false.
   call InitializeMPI
-  threadsnum = omp_get_max_threads()
+  threadsnum = 1
+!$ threadsnum = omp_get_max_threads()
   if(myid_w == 0) print *, "threads=",threadsnum
   if(myid_w == 0) print *, "setup grids and fields"
   if(myid_w == 0) print *, "grid size for x y",ngridx*ntiles(1),ngridy*ntiles(2)
@@ -78,7 +81,7 @@ program main
   call ConsvVariable
   if(myid_w == 0) print *, "entering main loop"
 ! main loop
-  time_begin = omp_get_wtime()
+  call system_clock(clock_begin,clock_rate)
   do nhy=1,nhymax
      if(mod(nhy,100) .eq. 0 .and. .not. nooutput .and. myid_w == 0) print *, nhy,time,dt
      if(debug) print *, "TimestepControl"
@@ -99,10 +102,12 @@ program main
      if(.not. nooutput) call Output
      if( time > tmax ) exit
   enddo
-  time_end = omp_get_wtime()
+  if(.not. nooutput) call Output
+  call system_clock(clock_end)
+  elapsed = real(clock_end-clock_begin,8)/real(clock_rate,8)
   
-  if(myid_w == 0) print *, "sim time [s]:", time_end-time_begin
-  if(myid_w == 0) print *, "time/count/cell", (time_end-time_begin)/(ngridx*ngridy)/nhymax
+  if(myid_w == 0) print *, "sim time [s]:", elapsed
+  if(myid_w == 0) print *, "time/count/cell", elapsed/(ngridx*ngridy)/nhy
   
   call FinalizeMPI
   if(myid_w == 0) print *, "program has been finished"
@@ -376,7 +381,6 @@ end subroutine YbcSendRecv
 
 
 subroutine ConsvVariable
-  use omp_lib
   use basicmod
   implicit none
   integer::i,j,k
