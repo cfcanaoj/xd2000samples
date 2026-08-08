@@ -15,6 +15,7 @@ Download this at the login node of CfCA server.
 
 ## hydrodynamics
 - [Sample of hydrodynamics using MPI and OpenMP in Fortran ](./KHF90openmp/)
+- [Sample of hydrodynamics using MPI and OpenMP in Fortran for XD2000 Lecture](./xd2000lectures/)
 
 # Refererences
 - [CfCA XD2000](https://www.cfca.nao.ac.jp/xd2000)
