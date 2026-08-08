@@ -33,14 +33,6 @@ module basicmod
   integer,parameter::nbc=5
 end module basicmod
 
-subroutine setmpi
-  use mpimod, only: ntiles
-  implicit none
-  ntiles(1) = 1
-  ntiles(2) = 1
-  ntiles(3) = 1
-end subroutine setmpi
-
 module fluxmod
   use basicmod, only : in,jn,kn
   implicit none
@@ -63,27 +55,25 @@ program main
   use basicmod
   use iso_fortran_env, only: int64
 !$ use omp_lib, only: omp_get_max_threads
-  use mpimod
   implicit none
   real(8)::elapsed
   integer(int64)::clock_begin,clock_end,clock_rate
   integer::threadsnum
   logical,parameter::nooutput=.false.
   logical,parameter::debug=.false.
-  call InitializeMPI
   threadsnum = 1
 !$ threadsnum = omp_get_max_threads()
-  if(myid_w == 0) print *, "threads=",threadsnum
-  if(myid_w == 0) print *, "setup grids and fields"
-  if(myid_w == 0) print *, "grid size for x y",ngridx*ntiles(1),ngridy*ntiles(2)
+  print *, "threads=",threadsnum
+  print *, "setup grids and fields"
+  print *, "grid size for x y",ngridx,ngridy
   call GenerateGrid
   call GenerateProblem
   call ConsvVariable
-  if(myid_w == 0) print *, "entering main loop"
+  print *, "entering main loop"
 ! main loop
   call system_clock(clock_begin,clock_rate)
   do nhy=1,nhymax
-     if(mod(nhy,100) .eq. 0 .and. .not. nooutput .and. myid_w == 0) print *, nhy,time,dt
+     if(mod(nhy,100) .eq. 0 .and. .not. nooutput) print *, nhy,time,dt
      if(debug) print *, "TimestepControl"
      call TimestepControl
      if(debug) print *, "BoundaryCondition"
@@ -106,26 +96,22 @@ program main
   call system_clock(clock_end)
   elapsed = real(clock_end-clock_begin,8)/real(clock_rate,8)
   
-  if(myid_w == 0) print *, "sim time [s]:", elapsed
-  if(myid_w == 0) print *, "time/count/cell", elapsed/(ngridx*ngridy)/nhy
-  
-  call FinalizeMPI
-  if(myid_w == 0) print *, "program has been finished"
+  print *, "sim time [s]:", elapsed
+  print *, "time/count/cell", elapsed/(ngridx*ngridy)/nhy
+
+  print *, "program has been finished"
 end program main
 
 subroutine GenerateGrid
   use basicmod
-  use mpimod
   implicit none
   real(8)::dx,dy
   real(8)::x1minloc,x1maxloc
   real(8)::x2minloc,x2maxloc
   integer::i,j,k
 
-  x1minloc = x1min + (x1max-x1min)/ntiles(1)* coords(1)
-  x1maxloc = x1min + (x1max-x1min)/ntiles(1)*(coords(1)+1)
-
-!  print *, myid,x1minloc,x1maxloc
+  x1minloc = x1min
+  x1maxloc = x1max
 
   dx=(x1maxloc-x1minloc)/ngridx
   do i=1,in
@@ -136,10 +122,8 @@ subroutine GenerateGrid
   enddo
 
 
-  x2minloc = x2min + (x2max-x2min)/ntiles(2)* coords(2)
-  x2maxloc = x2min + (x2max-x2min)/ntiles(2)*(coords(2)+1)
-
-!  print *, myid,x2minloc,x2maxloc
+  x2minloc = x2min
+  x2maxloc = x2max
 
   dy=(x2maxloc-x2minloc)/ngridy
   do j=1,jn
@@ -301,80 +285,25 @@ subroutine BoundaryCondition
 end subroutine BoundaryCondition
 
 subroutine XbcSendRecv(varsendXstt,varsendXend,varrecvXstt,varrecvXend)
-  use   mpimod
   use basicmod
   implicit none
   real(8),dimension(mgn,jn,kn,nbc),intent(in) ::varsendXstt,varsendXend
   real(8),dimension(mgn,jn,kn,nbc),intent(out)::varrecvXstt,varrecvXend
   
-  if(ntiles(1) == 1) then
-     varrecvXstt(:,:,:,:) = varsendXend(:,:,:,:)
-     varrecvXend(:,:,:,:) = varsendXstt(:,:,:,:)
-  else
-
-     nreq = nreq + 1         
-     call MPI_IRECV(varrecvXstt,mgn*jn*kn*nbc &
-    & , MPI_DOUBLE_PRECISION &
-    & , n1m,1100, comm3d, req(nreq), ierr)
-
-     nreq = nreq + 1
-     call MPI_ISEND(varsendXstt,mgn*jn*kn*nbc &
-    & , MPI_DOUBLE_PRECISION &
-    & , n1m, 1200, comm3d, req(nreq), ierr)
-
-     nreq = nreq + 1
-     call MPI_IRECV(varrecvXend,mgn*jn*kn*nbc &
-    & , MPI_DOUBLE_PRECISION &
-    & , n1p,1200, comm3d, req(nreq), ierr)
-
-     nreq = nreq + 1
-     call MPI_ISEND(varsendXend,mgn*jn*kn*nbc &
-    & , MPI_DOUBLE_PRECISION &
-    & , n1p, 1100, comm3d, req(nreq), ierr)
-
-     if(nreq .ne. 0) call MPI_WAITALL ( nreq, req(1:nreq), MPI_STATUSES_IGNORE, ierr )
-     nreq = 0
-
-  endif
+  varrecvXstt(:,:,:,:) = varsendXend(:,:,:,:)
+  varrecvXend(:,:,:,:) = varsendXstt(:,:,:,:)
 
   return
 end subroutine XbcSendRecv
 
 subroutine YbcSendRecv(varsendYstt,varsendYend,varrecvYstt,varrecvYend)
-  use   mpimod
   use basicmod
   implicit none
   real(8),dimension(in,mgn,kn,nbc),intent(in) ::varsendYstt,varsendYend
   real(8),dimension(in,mgn,kn,nbc),intent(out)::varrecvYstt,varrecvYend
 
-  if(ntiles(2) == 1) then
-     varrecvYstt(:,:,:,:) = varsendYend(:,:,:,:)
-     varrecvYend(:,:,:,:) = varsendYstt(:,:,:,:)
-  else
-
-     nreq = nreq + 1         
-     call MPI_IRECV(varrecvYstt,mgn*in*kn*nbc &
-    & , MPI_DOUBLE &
-    & , n2m, 2100, comm3d, req(nreq), ierr)
-
-     nreq = nreq + 1
-     call MPI_ISEND(varsendYstt,mgn*in*kn*nbc &
-    & , MPI_DOUBLE &
-    & , n2m, 2200, comm3d, req(nreq), ierr)
-
-     nreq = nreq + 1
-     call MPI_IRECV(varrecvYend,mgn*in*kn*nbc &
-    & , MPI_DOUBLE &
-    & , n2p,2200, comm3d, req(nreq), ierr)
-
-     nreq = nreq + 1
-     call MPI_ISEND(varsendYend,mgn*in*kn*nbc &
-    & , MPI_DOUBLE &
-    & , n2p, 2100, comm3d, req(nreq), ierr)
-
-     if(nreq .ne. 0) call MPI_WAITALL ( nreq, req(1:nreq), MPI_STATUSES_IGNORE, ierr )
-     nreq = 0
-  endif
+  varrecvYstt(:,:,:,:) = varsendYend(:,:,:,:)
+  varrecvYend(:,:,:,:) = varsendYstt(:,:,:,:)
 
   return
 end subroutine YbcSendRecv
@@ -438,7 +367,6 @@ subroutine ConsvVariable
 
 subroutine TimestepControl
   use basicmod      
-  use   mpimod
   implicit none
   real(8)::dtl1
   real(8)::dtl2
@@ -464,11 +392,6 @@ subroutine TimestepControl
 !$omp end do
 !$omp end parallel
 
-  dtlocal = dtmin
-  call MPI_ALLREDUCE( dtlocal, dtmin, 1    &
- &                   , MPI_DOUBLE_PRECISION &
- &                   , MPI_MIN, comm3d, ierr)
-  
   dt = 0.05d0 * dtmin
   
   return
@@ -854,7 +777,6 @@ end subroutine TimestepControl
 
       subroutine Output
       use basicmod
-      use mpimod
       implicit none
       integer::i,j,k
       character(20),parameter::dirname="snapshots/"
@@ -874,7 +796,7 @@ end subroutine TimestepControl
       endif
       if(time .lt. tout+dtout) return
 
-      write(filename,'(a4,3(i2.2),a1,i5.5,a4)')"snap",coords(1),coords(2),coords(3),"-",nout,".xss"
+      write(filename,'(a4,3(i2.2),a1,i5.5,a4)')"snap",0,0,0,"-",nout,".xss"
       filename = trim(dirname)//filename
       open(unitout,file=filename,status='replace',form='formatted') 
 
@@ -889,7 +811,7 @@ end subroutine TimestepControl
       enddo
       close(unitout)
 
-      if(myid_w == 0) print *, "output:",nout,time
+      print *, "output:",nout,time
 
       tout=nout*dtout
       nout=nout+1
@@ -898,13 +820,11 @@ end subroutine TimestepControl
       end subroutine Output
 
       subroutine makedirs(outdir)
-        use mpimod
         implicit none
         character(len=*), intent(in) :: outdir
         character(len=256) command
         write(command, *) 'if [ ! -d ', trim(outdir), ' ]; then mkdir -p ', trim(outdir), '; fi'
-        if(myid_w ==0) print *, trim(command)
-        if(myid_w ==0) call system(command)
-        call MPI_BARRIER(MPI_COMM_WORLD, ierr )
+        print *, trim(command)
+        call system(command)
        
       end subroutine makedirs
