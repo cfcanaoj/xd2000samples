@@ -34,9 +34,13 @@ xmax =  0.5
 ymin = -0.5
 ymax =  0.5
 
+den_min = 1
+den_max = 2
+
 for istep in range(step_s,step_s+1):
-    filelists = glob.glob(dirname + "/snap*-%05d.xss"%(istep))
+    filelists = sorted(glob.glob(dirname + "/snap*-%05d.xss"%(istep)))
     print("lists",filelists)
+    ntiles_x = max(int(os.path.basename(f)[4:6]) for f in filelists) + 1
     for foutname in filelists:  
         print("making plot ",foutname)
         with open(foutname, 'r') as data_file:
@@ -59,8 +63,16 @@ for istep in range(step_s,step_s+1):
         vy  = data[:,4].reshape(ny,nx)
         pre = data[:,5].reshape(ny,nx)
         #    sca = data[:,10].reshape(ny,nx)
-        im=plt.contourf(x,y,den,100)
+        coords_x = int(os.path.basename(foutname)[4:6])
+        x_left  = xmin + (xmax-xmin)*coords_x/ntiles_x
+        x_right = xmin + (xmax-xmin)*(coords_x+1)/ntiles_x
+        im=plt.imshow(den,origin="lower",
+                      extent=[x_left,x_right,ymin,ymax],
+                      interpolation="none",aspect="auto",
+                      vmin=den_min,vmax=den_max)
 
+
+    plt.minorticks_on()
     plt.xlim(xmin,xmax)
     plt.ylim(ymin,ymax)
 
