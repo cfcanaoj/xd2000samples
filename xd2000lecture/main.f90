@@ -34,9 +34,9 @@ module basicmod
 end module basicmod
 
 subroutine setmpi
-  use mpimod, only: ntiles
+  use mpimod, only: ntiles,nprocs_w
   implicit none
-  ntiles(1) = 8
+  ntiles(1) = nprocs_w
   ntiles(2) = 1
   ntiles(3) = 1
 end subroutine setmpi
