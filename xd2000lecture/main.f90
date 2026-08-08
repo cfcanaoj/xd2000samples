@@ -2,7 +2,8 @@
 module basicmod
   implicit none
   integer::nhy
-  integer,parameter::nhymax=2000
+  integer,parameter::nhymax=200000
+  integer,parameter::tmax=2.0
   real(8)::time,dt
   data time / 0.0d0 /
   integer,parameter::ngridx=64
@@ -96,6 +97,7 @@ program main
      call PrimVariable
      time=time+dt
      if(.not. nooutput) call Output
+     if( time > tmax ) exit
   enddo
   time_end = omp_get_wtime()
   
