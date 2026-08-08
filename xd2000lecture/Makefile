@@ -82,8 +82,8 @@ ${exe_mpi}: main_mpi.f90 mpiroutines.f90
 ${exe_hybrid}: main_mpi.f90 mpiroutines.f90
 	${fc} ${fopt} -fopenmp mpiroutines.f90 main_mpi.f90 -o ${exe_hybrid}
 
-${exe_openmp}: main_openmp.f90
-	${fc} ${fopt} -fopenmp main_openmp.f90 -o ${exe_openmp}
+${exe_openmp}: main_openmp.f90 mpiroutines.f90
+	${fc} ${fopt} -fopenmp mpiroutines.f90 main_openmp.f90 -o ${exe_openmp}
 
 #################
 # clean up
