@@ -3,19 +3,17 @@ exe=kh.x
 
 all: ${exe}
 
-.PHONY: all clean allclean
+.PHONY: all openmp clean allclean
+
+openmp:
+	${MAKE} clean
+	${MAKE} foptopenmp=-fopenmp all
 
 ##################################
 # setup for CfCA XD2000 cpe env (gnu) begin
 ##################################
-
-#fc= ftn 
-#foptopenmp = -fopenmp
-#fopt = -g -traceback -O2
-
-fc= /usr/local/bin/mpif90
-foptopenmp = 
-fopt = -O3
+fc= ftn
+fopt = -O2
 
 # setup for CfCA XD2000 end
 ##################################
