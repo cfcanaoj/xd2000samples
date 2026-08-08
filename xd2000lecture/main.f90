@@ -298,7 +298,6 @@ end subroutine BoundaryCondition
 subroutine XbcSendRecv(varsendXstt,varsendXend,varrecvXstt,varrecvXend)
   use   mpimod
   use basicmod
-  use mpi
   implicit none
   real(8),dimension(mgn,jn,kn,nbc),intent(in) ::varsendXstt,varsendXend
   real(8),dimension(mgn,jn,kn,nbc),intent(out)::varrecvXstt,varrecvXend
@@ -328,7 +327,7 @@ subroutine XbcSendRecv(varsendXstt,varsendXend,varrecvXstt,varrecvXend)
     & , MPI_DOUBLE_PRECISION &
     & , n1p, 1100, comm3d, req(nreq), ierr)
 
-     if(nreq .ne. 0) call MPI_WAITALL ( nreq, req, stat, ierr )
+     if(nreq .ne. 0) call MPI_WAITALL ( nreq, req(1:nreq), MPI_STATUSES_IGNORE, ierr )
      nreq = 0
 
   endif
@@ -339,7 +338,6 @@ end subroutine XbcSendRecv
 subroutine YbcSendRecv(varsendYstt,varsendYend,varrecvYstt,varrecvYend)
   use   mpimod
   use basicmod
-  use mpi
   implicit none
   real(8),dimension(in,mgn,kn,nbc),intent(in) ::varsendYstt,varsendYend
   real(8),dimension(in,mgn,kn,nbc),intent(out)::varrecvYstt,varrecvYend
@@ -369,7 +367,7 @@ subroutine YbcSendRecv(varsendYstt,varsendYend,varrecvYstt,varrecvYend)
     & , MPI_DOUBLE &
     & , n2p, 2100, comm3d, req(nreq), ierr)
 
-     if(nreq .ne. 0) call MPI_WAITALL ( nreq, req, stat, ierr )
+     if(nreq .ne. 0) call MPI_WAITALL ( nreq, req(1:nreq), MPI_STATUSES_IGNORE, ierr )
      nreq = 0
   endif
 

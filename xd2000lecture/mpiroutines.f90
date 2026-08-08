@@ -1,17 +1,21 @@
 module mpimod
-  use mpi
+  use mpi_f08
   implicit none
   integer, parameter :: mreq  = 300
   integer :: stat(MPI_STATUS_SIZE,mreq)                     
-  integer :: req(mreq)
-  
+  type(MPI_Request) :: req(mreq)
+
   integer :: ierr,myid_w, nprocs_w
-  integer :: mpi_comm_hyd,myid_hyd, nprocs_hyd
-  integer :: comm3d,myid, nprocs
+  integer :: myid_hyd, nprocs_hyd
+  integer :: myid, nprocs
+
+  type(MPI_Comm) :: mpi_comm_hyd
+  type(MPI_Comm) :: comm3d
+
   logical :: periodic(3)  =  (/ .true.,.true.,.true. /)
   integer :: ntiles(3)    =  (/      1,     1,    1  /)
   integer :: coords(3)
-  logical :: reorder
+  logical :: reorder = .false.
   integer :: n1m, n1p, n2m, n2p, n3m, n3p
   integer :: nreq, nsub
 
