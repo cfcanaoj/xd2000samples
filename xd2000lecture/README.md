@@ -15,12 +15,12 @@ https://ui.adsabs.harvard.edu/abs/2012ApJS..201...18M/abstract
 After you login the server, `xd01.cfca.nao.ac.jp`, follow the instruction.
 
     cd /work/<username>
-    git clone git@github.com:cfcanaoj/xd2000samples test
+    git clone git@github.com:cfcanaoj/xd2000samples
     
 ## Change directory
 You can change the directory by `cd`. `test` can be different if you change the name above.
     
-    cd test/KHF90openmp
+    cd xd2000samples/xd2000lecture
 
 ## Compile code
 First you need to prepare Intel one-api environment. This setup is also need to run the program. You should write it in `.basrhrc`.
@@ -38,11 +38,11 @@ After that you can compile it. If you want to change the compile option, edit `M
 
 In the following part, you need to specify your own partition.
 
-    #SBATCH --partition=M-test-cfca
+    #SBATCH --partition=M-large-b
 
 Then you can submit the job.
 
-    sbatch slm_xc.sh
+    sbatch slm_mpi.sh
     
 You can confirm the job by the following command.
     
@@ -53,10 +53,9 @@ You can confirm the job by the following command.
 Let us move to analysis server.
 
     ssh an10@cfca.nao.ac.jp
-    cp /xd-work/<username>/test/KHF90openmp .
+    cp /xd-work/<username>/xd2000samples/KHF90openmp .
     cd KHF90openmp
     module load gnuplot
     python MakePlot.py
     display images/den00100.png
-
 
