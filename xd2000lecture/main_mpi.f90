@@ -6,8 +6,8 @@ module basicmod
   integer,parameter::tmax=2.0
   real(8)::time,dt
   data time / 0.0d0 /
-  integer,parameter::ngridx=64
-  integer,parameter::ngridy=512
+  integer,parameter::ngridx=32
+  integer,parameter::ngridy=256
   integer,parameter::mgn=2
   integer,parameter::in=ngridx+2*mgn+1 &
  &                  ,jn=ngridy+2*mgn+1 &
