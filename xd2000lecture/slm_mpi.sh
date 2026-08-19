@@ -3,7 +3,7 @@
 #SBATCH --partition=M-large-t
 #SBATCH --nodes=1
 #SBATCH --ntasks=8
-#SBATCH --mem=30G
+#SBATCH --mem=1G
 #SBATCH --output=%j_%x.out
 #SBATCH --error=%j_%x.out
 #SBATCH --hint=nomultithread
