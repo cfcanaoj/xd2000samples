@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=KH
+#SBATCH --job-name=KHmpi
 #SBATCH --partition=M-large-t
 #SBATCH --nodes=1
 #SBATCH --ntasks=8

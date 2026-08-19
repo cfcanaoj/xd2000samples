@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=KH
+#SBATCH --job-name=KHomp
 #SBATCH --partition=M-debug
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
