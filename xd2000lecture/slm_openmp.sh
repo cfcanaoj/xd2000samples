@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=KH
-#SBATCH --partition=M-large-t
+#SBATCH --partition=M-debug
 #SBATCH --nodes=1
-#SBATCH --ntasks=8
-#SBATCH --cpus-per-task=2
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
 #SBATCH --mem=30G
 #SBATCH --output=%j_%x.out
 #SBATCH --error=%j_%x.out
@@ -16,8 +16,7 @@ module list
 echo $SLURM_CPUS_PER_TASK
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
-# gnu in CPE
-export OMP_PROC_BIND=True
-export OMP_PLACES=cores
+export OMP_PROC_BIND=true
+export OMP_PLACES=cores                                                         
 
-srun -c${SLURM_CPUS_PER_TASK} ./kh_hybrid.x
+./kh_openmp.x
