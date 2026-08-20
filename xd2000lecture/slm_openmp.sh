@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=KHomp
-#SBATCH --partition=M-debug
+#SBATCH --partition=M-large-t
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
