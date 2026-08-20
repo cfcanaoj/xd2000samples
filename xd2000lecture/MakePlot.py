@@ -22,7 +22,8 @@ def makedirs(path):
     if not os.path.isdir(path):
         os.makedirs(path)
 
-makedirs("./images")
+outdir = dirname + "/images"
+makedirs(outdir)
 fig = plt.figure()  
 plt.xlim(0, 1)     
 plt.ylim(0, 1)
@@ -82,7 +83,7 @@ for istep in range(step_s,step_s+1):
     if istep == step_s: 
         plt.colorbar(im,orientation="vertical")
 
-    plt.savefig("./images/den%05d.png"%(istep),dpi=300)
+    plt.savefig(outdir + "/den%05d.png"%(istep),dpi=300)
 
 #ani = animation.ArtistAnimation(fig, graph_list, interval=200) 
 #print("making animation file", fname_anime)
