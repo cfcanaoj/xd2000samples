@@ -6,6 +6,7 @@
 #SBATCH --mem=1G
 #SBATCH --output=%j_%x.out
 #SBATCH --error=%j_%x.out
+#SBATCH --time=00:15:00
 #SBATCH --hint=nomultithread
 #SBATCH --reservation=beginner
 
