@@ -9,6 +9,9 @@
 #SBATCH --error=%j_%x.out
 #SBATCH --time=00:15:00
 #SBATCH --hint=nomultithread
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=yourmailaddress
+
 #SBATCH --reservation=beginner
 
 cd ${SLURM_SUBMIT_DIR}
